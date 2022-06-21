@@ -19,6 +19,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import EditModal from './EditModal';
 import SearchBar from './SearchBar';
 import TablePagination from './TablePagination';
+import Pagination from './Pagination'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -58,6 +59,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   const handleCloseEditModel = () => setOpenEditModel(false);
   const [name, setName] = useState("")
 
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(3);
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = data.slice(indexOfFirstRecord, indexOfLastRecord);
+  const nPages = Math.ceil(data.length / recordsPerPage)
+
   const getData = () => {
     try {
       let data = JSON.parse(localStorage.getItem("data"))
@@ -65,6 +77,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
         if (data.length > 0) {
           setRows(data)
           setFilterData(data)
+          setData(data)
         }
       } else {
         let arr = new Array()
@@ -94,6 +107,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     localStorage.setItem("data", JSON.stringify(filteredData))
     setRows(filteredData)
     setFilterData(filteredData)
+    setData(filteredData)
     setNotify({
       isOpen: true,
       message: `${name} is deleted successfully`,
@@ -117,6 +131,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     newState[index] = tempobj;
     setRows(newState);
     setFilterData(newState)
+    setData(newState)
       
     localStorage.setItem('data', JSON.stringify(newState))
   }
@@ -141,6 +156,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
         return user.indexOf(search) > -1;
       });
       setRows(filtered_users)
+      setData(filtered_users)
     }
     else{
       getData()
@@ -168,7 +184,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows?.map((row) => (
+          {currentRecords?.map((row) => (
             <StyledTableRow key={row.name}>
               
               <StyledTableCell align="center">{row.name}</StyledTableCell>
@@ -198,8 +214,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
         updateItem={updateItem}
       />
     <Notification notify={notify} setNotify={setNotify} />
-    </TableContainer>
-    <TablePagination/>
+    {/* <TablePagination/> */}
+    <Pagination
+                nPages={nPages}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                />
+                </TableContainer>
     </>
   )
 }

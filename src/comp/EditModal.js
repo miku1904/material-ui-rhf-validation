@@ -155,6 +155,7 @@ const EditModal = (props) => {
                       inputRef={register}
                     />
                   }
+                 
                   label="Female"
                 />
                 <FormControlLabel
